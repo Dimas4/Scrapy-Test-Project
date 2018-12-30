@@ -1,0 +1,4 @@
+scrapy:
+  dates: ['11/27/2018', '12/27/2018']
+  page_count: 2
+  row_count: 2
