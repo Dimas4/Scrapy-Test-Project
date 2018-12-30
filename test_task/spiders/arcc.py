@@ -36,7 +36,7 @@ class ArccSpider(scrapy.Spider):
             time.sleep(10)
 
             input_page_count = self.driver.find_element_by_css_selector('div.t-page-i-of-n')
-            page_count = int(input_page_count.find_elements_by_tag_name('input').getAttribute("value"))
+            page_count = int(input_page_count.find_element_by_tag_name('input').get_attribute("value"))
 
             if self.scrapy_config['page_count'] != 'all':
                 page_count = self.scrapy_config['page_count']
@@ -108,7 +108,7 @@ class ArccSpider(scrapy.Spider):
 
                     yield data
 
-                next = self.driver.find_elements_by_css_selector('a.t-icon.t-arrow-next')[0]
+                next = self.driver.find_elements_by_css_selector('span.t-icon.t-arrow-next')[0]
                 next.click()
 
         self.driver.close()
