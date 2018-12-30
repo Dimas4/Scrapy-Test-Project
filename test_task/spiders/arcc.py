@@ -17,11 +17,17 @@ class ArccSpider(scrapy.Spider):
         self.config = get_config()
         self.scrapy_config = self.config['scrapy']
 
+    def find_and_click(self, selector):
+        object = self.driver.find_element_by_css_selector(selector)
+        object.click()
+
+    def get_page_count(self):
+        input_page_count = self.driver.find_element_by_css_selector('div.t-page-i-of-n')
+        return int(input_page_count.find_element_by_tag_name('input').get_attribute("value"))
+
     def parse(self, response):
         self.driver.get('https://arcc-acclaim.sdcounty.ca.gov/search/SearchTypeRecordDate')
-
-        button = self.driver.find_element_by_css_selector('#btnButton')
-        button.click()
+        self.find_and_click('#btnButton')
 
         time.sleep(1)
 
@@ -30,13 +36,11 @@ class ArccSpider(scrapy.Spider):
             input.clear()
             input.send_keys(date)
 
-            button = self.driver.find_element_by_css_selector('#btnSearch')
-            button.click()
+            self.find_and_click('#btnSearch')
 
             time.sleep(10)
 
-            input_page_count = self.driver.find_element_by_css_selector('div.t-page-i-of-n')
-            page_count = int(input_page_count.find_element_by_tag_name('input').get_attribute("value"))
+            page_count = self.get_page_count()
 
             if self.scrapy_config['page_count'] != 'all':
                 page_count = self.scrapy_config['page_count']
@@ -44,9 +48,8 @@ class ArccSpider(scrapy.Spider):
             for i in range(page_count):
                 time.sleep(10)
 
-                div = self.driver.find_element_by_css_selector('div.t-grid-content')
-                tbody = div.find_element_by_css_selector('tbody')
-                trs = tbody.find_elements_by_css_selector('tr')
+                trs = self.driver.find_element_by_xpath('//*[@id="RsltsGrid"]/div[4]/table/tbody')\
+                    .find_elements_by_css_selector('tr')
 
                 for tr in trs[:self.scrapy_config['row_count']]:
                     time.sleep(2)
@@ -56,10 +59,6 @@ class ArccSpider(scrapy.Spider):
                     except Exception:
                         time.sleep(5)
                         tr.click()
-
-                    print(self.driver.window_handles)
-                    print(len(self.driver.window_handles))
-                    print('-' * 100)
 
                     main_window_handle = self.driver.current_window_handle
 
@@ -105,6 +104,8 @@ class ArccSpider(scrapy.Spider):
 
                     self.driver.close()
                     self.driver.switch_to.window(main_window_handle)
+
+                    print(date)
 
                     yield data
 
