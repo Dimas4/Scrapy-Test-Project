@@ -26,7 +26,7 @@ class ArccSpider(scrapy.Spider):
         return int(input_page_count.find_element_by_tag_name('input').get_attribute("value"))
 
     def parse(self, response):
-        self.driver.get('https://arcc-acclaim.sdcounty.ca.gov/search/SearchTypeRecordDate')
+        self.driver.get(self.start_urls[0])
         self.find_and_click('#btnButton')
 
         time.sleep(1)
@@ -45,7 +45,7 @@ class ArccSpider(scrapy.Spider):
             if self.scrapy_config['page_count'] != 'all':
                 page_count = self.scrapy_config['page_count']
 
-            for i in range(page_count):
+            for _ in range(page_count):
                 time.sleep(10)
 
                 trs = self.driver.find_element_by_xpath('//*[@id="RsltsGrid"]/div[4]/table/tbody')\
@@ -56,28 +56,26 @@ class ArccSpider(scrapy.Spider):
 
                     try:
                         tr.click()
-                    except Exception:
+                    except Exception as err:
                         time.sleep(5)
                         tr.click()
 
                     main_window_handle = self.driver.current_window_handle
+
+                    apn = tr.find_elements_by_tag_name('td')[8].text
+                    print(apn)
 
                     self.driver.switch_to.window(self.driver.window_handles[-1])
                     time.sleep(5)
 
                     results = self.driver.find_elements_by_css_selector('.docDetailRow')
 
-                    grantor_result = []
-                    grantee_result = []
-
-                    flag = False
-
-                    while not flag:
+                    while True:
                         results = self.driver.find_elements_by_css_selector('.docDetailRow')
                         if len(results) < 5:
                             time.sleep(5)
                         else:
-                            flag = True
+                            break
 
                     record_date = results[0].find_element_by_class_name('formInput').text
 
@@ -86,11 +84,8 @@ class ArccSpider(scrapy.Spider):
                     grantors = results[7].find_element_by_class_name('listDocDetails').find_elements_by_tag_name('span')
                     grantees = results[8].find_element_by_class_name('listDocDetails').find_elements_by_tag_name('span')
 
-                    for grantor in grantors:
-                        grantor_result.append(grantor.text)
-
-                    for grantee in grantees:
-                        grantee_result.append(grantee.text)
+                    grantor_result = [grantor.text for grantor in grantors]
+                    grantee_result = [grantee.text for grantee in grantees]
 
                     data = {
                         'record_date': record_date,
@@ -98,6 +93,7 @@ class ArccSpider(scrapy.Spider):
                         'doc_type': doc_type,
                         'name': grantee_result,
                         'role': grantor_result or grantee_result,
+                        'apn': apn,
                         'county': 'San Diego',
                         'state': 'CA',
                     }
@@ -105,7 +101,7 @@ class ArccSpider(scrapy.Spider):
                     self.driver.close()
                     self.driver.switch_to.window(main_window_handle)
 
-                    print(date)
+                    print(data)
 
                     yield data
 
