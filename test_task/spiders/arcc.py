@@ -58,7 +58,7 @@ class ArccSpider(scrapy.Spider):
                     row_count = self.scrapy_config['row_count']
 
                 for tr in trs[:row_count]:
-                    time.sleep(2)
+                    time.sleep(3)
 
                     try:
                         tr.click()
@@ -72,7 +72,7 @@ class ArccSpider(scrapy.Spider):
                     print(apn)
 
                     self.driver.switch_to.window(self.driver.window_handles[-1])
-                    time.sleep(5)
+                    time.sleep(7)
 
                     results = self.driver.find_elements_by_css_selector('.docDetailRow')
 
