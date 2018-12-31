@@ -41,6 +41,7 @@ class ArccSpider(scrapy.Spider):
         new_df['grantee'] = df['IndirectName']
         new_df['doc_number'] = df['InstrumentNumber']
         new_df['record_date'] = df['RecordDate']
+        new_df['apn'] = df['ParcelNumber']
         new_df['country'] = 'San Diego'
         new_df['state'] = 'CA'
         new_df['doc_type'] = df['DocTypeDescription']
