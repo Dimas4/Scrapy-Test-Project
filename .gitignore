@@ -7,6 +7,7 @@ venvv/
 .idea/
 # C extensions
 *.so
+venv
 
 # Distribution / packaging
 .Python

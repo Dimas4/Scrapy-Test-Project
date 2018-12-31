@@ -1,12 +1,9 @@
 # -*- coding: utf-8 -*-
 import time
 
-from selenium.webdriver.support import expected_conditions as EC
-from selenium.common.exceptions import TimeoutException
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.common.by import By
-from selenium import webdriver
 import scrapy
+
+from selenium import webdriver
 
 from config.get_config import get_config
 
@@ -50,19 +47,7 @@ class ArccSpider(scrapy.Spider):
                 page_count = self.scrapy_config['page_count']
 
             for _ in range(page_count):
-                timeout = 5
-                print('start')
-
-                while True:
-                    try:
-                        element_present = EC.presence_of_element_located(
-                            (By.XPATH, '//*[@id="RsltsGrid"]/div[4]/table/tbody/tr[1]/td[6]'))
-                        WebDriverWait(self.driver, timeout).until(element_present)
-                        break
-                    except TimeoutException:
-                        print("Timed out waiting for page to load")
-
-                print('end')
+                time.sleep(10)
 
                 trs = self.driver.find_element_by_xpath('//*[@id="RsltsGrid"]/div[4]/table/tbody')\
                     .find_elements_by_css_selector('tr')
