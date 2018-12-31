@@ -51,7 +51,12 @@ class ArccSpider(scrapy.Spider):
                 trs = self.driver.find_element_by_xpath('//*[@id="RsltsGrid"]/div[4]/table/tbody')\
                     .find_elements_by_css_selector('tr')
 
-                for tr in trs[:self.scrapy_config['row_count']]:
+                row_count = len(trs)
+
+                if self.scrapy_config['row_count'] != 'all':
+                    row_count = self.scrapy_config['row_count']
+
+                for tr in trs[:row_count]:
                     time.sleep(2)
 
                     try:
