@@ -15,15 +15,15 @@ class ArccSpider(scrapy.Spider):
     def __init__(self):
         self.config = get_config()
         self.scrapy_config = self.config['scrapy']
+        self.date = self.scrapy_config['date']
 
     def parse(self, response):
-        return [FormRequest.from_response(response,
-                                          callback=self.after_submit)]
+        return [FormRequest.from_response(response, callback=self.after_submit)]
 
     def after_submit(self, response):
         return scrapy.FormRequest.from_response(
             response,
-            formdata={'RecordDate': '11/27/2018'},
+            formdata={'RecordDate': self.date},
             callback=self.after_choosing_date
         )
 
